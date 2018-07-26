@@ -10,7 +10,7 @@
     class="global-nav-link__anchor"
     href="{{ getHref() }}"
     ng-click="onClick({ $event: $event })"
-    data-test-subj="appLink"
+    data-test-subj="appLink{{::label}}"
     aria-label="{{::label}}"
   >
     <div class="global-nav-link__icon">
