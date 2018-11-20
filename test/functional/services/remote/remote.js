@@ -81,7 +81,7 @@ export async function RemoteProvider({ getService }) {
     });
   }
 
-  const actions = driver.actions();
+  const actions = driver.actions({ bridge: true });
   const mouse = actions.mouse();
   lifecycle.on('cleanup', async () => await driver.quit());
 
@@ -195,9 +195,18 @@ export async function RemoteProvider({ getService }) {
         await driver.sleep(milliseconds);
       },
 
-      // async descendantExistsByCssSelector(selector, parentElement) {
-      //   return await parentElement.findElement(selector).isDisplayed();
-      // },
+      async dragToElement(elementToDrag, locationElement) {
+
+      },
+
+      async dragToRelativeCoordinate(elementToDrag, coordinates) {
+        const actions = driver.actions({ bridge: true });
+        await actions.pause(mouse).dragAndDrop(elementToDrag, coordinates).perform();
+      },
+
+      async dragToAbsoluteCoordinate() {
+
+      },
 
       async getPageSource() {
         return await driver.getPageSource();
@@ -256,8 +265,8 @@ export async function RemoteProvider({ getService }) {
             return false;
           });
         },
-        defaultFindTimeout,
-        `The element ${selectorObj} was still present when it should have disappeared.`);
+          defaultFindTimeout,
+          `The element ${selectorObj} was still present when it should have disappeared.`);
       },
 
       async isElementVisible(selectorObj) {

@@ -18,7 +18,7 @@
  */
 
 import { delay } from 'bluebird';
-import { By } from 'selenium-webdriver';
+import { By, Key } from 'selenium-webdriver';
 import expect from 'expect.js';
 
 import getUrl from '../../../src/test_utils/get_url';
@@ -186,12 +186,12 @@ export function CommonPageProvider({ getService, getPageObjects }) {
                   }
                 });
             });
-          // })
-          // .then(async () => {
-          //   if (appName === 'status_page') return;
-          //   if (await testSubjects.exists('statusPageContainer', 500)) {
-          //     throw new Error('Navigation ended up at the status page.');
-          //   }
+            // })
+            // .then(async () => {
+            //   if (appName === 'status_page') return;
+            //   if (await testSubjects.exists('statusPageContainer', 500)) {
+            //     throw new Error('Navigation ended up at the status page.');
+            //   }
           });
       });
     }
@@ -271,7 +271,8 @@ export function CommonPageProvider({ getService, getPageObjects }) {
     }
 
     async pressEnterKey() {
-      await remote.pressKeys('\uE007');
+      const activeElement = remote.getActiveElement();
+      await activeElement.pressKeys(Key.RETURN);
     }
 
     // pass in true if your test will show multiple modals

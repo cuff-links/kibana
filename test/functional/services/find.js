@@ -150,7 +150,7 @@ export function FindProvider({ getService }) {
 
     async descendantExistsByCssSelector(selector, parentElement, timeout = WAIT_FOR_EXISTS_TIME) {
       log.debug('Find.descendantExistsByCssSelector: ' + selector);
-      return await this.exists(async () => await parentElement.findElements(By.css(selector)), timeout);
+      return await this.exists(async () => await parentElement.findElement(By.css(selector)), timeout);
     }
 
     async allDescendantByCssSelector(selector, parentElement) {
@@ -205,7 +205,7 @@ export function FindProvider({ getService }) {
 
     async existsByCssSelector(selector, timeout = WAIT_FOR_EXISTS_TIME) {
       log.debug(`existsByCssSelector ${selector}`);
-      return (await remote.findElements(By.css(selector))).length > 0;
+      return (await remote.findElements(By.css(selector), timeout)).length > 0;
     }
 
     async clickByCssSelectorWhenNotDisabled(selector, { timeout } = { timeout: defaultFindTimeout }) {
@@ -217,7 +217,7 @@ export function FindProvider({ getService }) {
       await remote.moveMouseTo(element);
 
       const clickIfNotDisabled = async (element, resolve) => {
-        const disabled = await element.getProperty('disabled');
+        const disabled = await element.getAttribute('disabled');
         if (disabled) {
           log.debug('Element is disabled, try again');
           setTimeout(() => clickIfNotDisabled(element, resolve), 250);

@@ -25,7 +25,7 @@ export function DashboardExpectProvider({ getService, getPageObjects }) {
   const testSubjects = getService('testSubjects');
   const find = getService('find');
   const filterBar = getService('filterBar');
-  const PageObjects = getPageObjects(['dashboard', 'visualize']);
+  const PageObjects = getPageObjects(['dashboard', 'visualize', 'common']);
 
   return new class DashboardExpect {
     async pieSliceCount(expectedCount) {
@@ -148,6 +148,7 @@ export function DashboardExpectProvider({ getService, getPageObjects }) {
       const tagCloudsHaveContent = await Promise.all(tagCloudVisualizations.map(async tagCloud => {
         return await find.descendantExistsByCssSelector('text', tagCloud);
       }));
+      log.debug(tagCloudsHaveContent);
       expect(tagCloudsHaveContent.indexOf(false)).to.be.greaterThan(-1);
     }
 

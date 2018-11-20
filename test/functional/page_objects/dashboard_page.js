@@ -19,7 +19,7 @@
 
 import _ from 'lodash';
 
-import { By } from 'selenium-webdriver';
+import { By, Key } from 'selenium-webdriver';
 import { DashboardConstants } from '../../../src/core_plugins/kibana/public/dashboard/dashboard_constants';
 
 export const PIE_CHART_VIS_NAME = 'Visualization PieChart';
@@ -385,8 +385,8 @@ export function DashboardPageProvider({ getService, getPageObjects }) {
 
       await retry.try(async () => {
         const searchFilter = await testSubjects.find('searchFilter');
-        await searchFilter.clearValue();
-        await PageObjects.common.pressEnterKey();
+        await searchFilter.clear();
+        await searchFilter.sendKeys(Key.RETURN);
       });
     }
 
@@ -406,7 +406,7 @@ export function DashboardPageProvider({ getService, getPageObjects }) {
         await searchFilter.click();
         // Note: this replacement of - to space is to preserve original logic but I'm not sure why or if it's needed.
         await searchFilter.sendKeys(dashName.replace('-', ' '));
-        await PageObjects.common.pressEnterKey();
+        await searchFilter.sendKeys(Key.RETURN);
       });
 
       await PageObjects.header.waitUntilLoadingHasFinished();

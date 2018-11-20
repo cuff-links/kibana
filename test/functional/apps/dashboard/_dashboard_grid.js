@@ -22,7 +22,7 @@ import expect from 'expect.js';
 export default function ({ getService, getPageObjects }) {
   const remote = getService('remote');
   const dashboardPanelActions = getService('dashboardPanelActions');
-  const PageObjects = getPageObjects(['dashboard']);
+  const PageObjects = getPageObjects(['dashboard', 'common']);
 
   describe('dashboard grid', () => {
     before(async () => {
@@ -36,18 +36,21 @@ export default function ({ getService, getPageObjects }) {
       it('Can move panel from bottom to top row', async () => {
         const lastVisTitle = 'Rendering Test: datatable';
         const panelTitleBeforeMove = await dashboardPanelActions.getPanelHeading(lastVisTitle);
-        const position1 = await panelTitleBeforeMove.getPosition();
+        const position1 = await panelTitleBeforeMove.getAttribute('offsetTop');
 
-        remote
-          .moveMouseTo(panelTitleBeforeMove)
-          .pressMouseButton()
-          .moveMouseTo(null, -20, -450)
-          .releaseMouseButton();
+        await remote.dragToRelativeCoordinate(panelTitleBeforeMove, { x: -20, y: -450 });
+
+        //await PageObjects.common.sleep(10000000);
+
+        // await remote.moveMouseTo(panelTitleBeforeMove)
+        //   .pressMouseButton()
+        //   .moveMouseTo(null, -20, -450)
+        //   .releaseMouseButton();
 
         const panelTitleAfterMove = await dashboardPanelActions.getPanelHeading(lastVisTitle);
-        const position2 = await panelTitleAfterMove.getPosition();
+        const position2 = await panelTitleAfterMove.getAttribute('offsetTop');
 
-        expect(position1.y).to.be.greaterThan(position2.y);
+        expect(position1).to.be.greaterThan(position2);
       });
     });
   });

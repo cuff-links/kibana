@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import { Key } from 'selenium-webdriver';
 
 export function QueryBarProvider({ getService, getPageObjects }) {
   const testSubjects = getService('testSubjects');
@@ -44,8 +45,9 @@ export function QueryBarProvider({ getService, getPageObjects }) {
 
     async submitQuery() {
       log.debug('QueryBar.submitQuery');
-      await testSubjects.click('queryInput');
-      await PageObjects.common.pressEnterKey();
+      const queryInput = await testSubjects.find('queryInput');
+      await queryInput.click();
+      await queryInput.sendKeys(Key.RETURN);
       await PageObjects.header.waitUntilLoadingHasFinished();
     }
 
