@@ -53,12 +53,9 @@ export async function RemoteProvider({ getService }) {
 
 
   const chromeService = new chrome.ServiceBuilder(chromeDriver.path)
-    // .loggingTo(process.stdout)
     .enableVerboseLogging();
 
   const firefoxOptions = new firefox.Options();
-  // firefoxOptions.headless();
-  // chromeOptions.windowSize({ width: 1200, height: 1100 });
 
   const firefoxService = new firefox.ServiceBuilder(geckoDriver.path)
     // .loggingTo(process.stdout)
@@ -195,9 +192,7 @@ export async function RemoteProvider({ getService }) {
         await driver.sleep(milliseconds);
       },
 
-      async dragToElement(elementToDrag, locationElement) {
-
-      },
+      //TODO: Implement Drag to Element
 
       async dragToRelativeCoordinate(elementToDrag, coordinates) {
         const actions = driver.actions({ bridge: true });
@@ -265,8 +260,8 @@ export async function RemoteProvider({ getService }) {
             return false;
           });
         },
-          defaultFindTimeout,
-          `The element ${selectorObj} was still present when it should have disappeared.`);
+        defaultFindTimeout,
+        `The element ${selectorObj} was still present when it should have disappeared.`);
       },
 
       async isElementVisible(selectorObj) {
