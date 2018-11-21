@@ -22,23 +22,29 @@ export default function ({ getService, loadTestFile, getPageObjects }) {
   const esArchiver = getService('esArchiver');
   const PageObjects = getPageObjects(['dashboard']);
 
-  describe('dashboard app', function () {
-    describe('using current data', function () {
-      before(async () => {
-        await remote.setWindowSize(1300, 900);
-        await PageObjects.dashboard.initTests({
-          kibanaIndex: 'dashboard/current/kibana',
-          dataIndex: 'dashboard/current/data',
-          defaultIndex: 'logstash-*',
-        });
-        await PageObjects.dashboard.preserveCrossAppState();
-      });
+  async function loadCurrentData() {
+    await remote.setWindowSize(1300, 900);
+    await PageObjects.dashboard.initTests({
+      kibanaIndex: 'dashboard/current/kibana',
+      dataIndex: 'dashboard/current/data',
+      defaultIndex: 'logstash-*',
+    });
+    await PageObjects.dashboard.preserveCrossAppState();
+  }
 
-      after(async function () {
-        await PageObjects.dashboard.clearSavedObjectsFromAppLinks();
-        await esArchiver.unload('dashboard/current/kibana');
-        await esArchiver.unload('dashboard/current/data');
-      });
+  async function unloadCurrentData() {
+    await PageObjects.dashboard.clearSavedObjectsFromAppLinks();
+    await esArchiver.unload('dashboard/current/kibana');
+    await esArchiver.unload('dashboard/current/data');
+  }
+
+  describe('dashboard app', function () {
+    // This has to be first since the other tests create some embeddables as side affects and our counting assumes
+    // a fresh index.
+    describe('using current data', function () {
+      this.tags('ciGroup2');
+      before(loadCurrentData);
+      after(unloadCurrentData);
 
       // This has to be first since the other tests create some embeddables as side affects and our counting assumes
       // a fresh index.
@@ -63,12 +69,19 @@ export default function ({ getService, loadTestFile, getPageObjects }) {
     // the data once to save on time. Eventually, all of these tests should just use current data and we can reserve
     // legacy data only for specifically testing BWC situations.
     describe('using legacy data', function () {
+      this.tags('ciGroup4');
       before(() => remote.setWindowSize(1200, 900));
 
       loadTestFile(require.resolve('./_dashboard_time_picker'));
       loadTestFile(require.resolve('./_bwc_shared_urls'));
       loadTestFile(require.resolve('./_panel_controls'));
       loadTestFile(require.resolve('./_dashboard_state'));
+    });
+
+    describe('using legacy data', function () {
+      this.tags('ciGroup5');
+      before(() => remote.setWindowSize(1200, 900));
+
       loadTestFile(require.resolve('./_dashboard_save'));
       loadTestFile(require.resolve('./_dashboard_time'));
       loadTestFile(require.resolve('./_dashboard_listing'));

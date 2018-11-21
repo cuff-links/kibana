@@ -581,6 +581,11 @@ export function VisualizePageProvider({ getService, getPageObjects }) {
       await PageObjects.header.waitUntilLoadingHasFinished();
     }
 
+    async toggleAggregationEditor(agg) {
+      await testSubjects.click(`aggregationEditor${agg} toggleEditor`);
+      await PageObjects.header.waitUntilLoadingHasFinished();
+    }
+
     async toggleOtherBucket() {
       return await find.clickByCssSelector('vis-editor-agg-params:not(.ng-hide) input[name="showOther"]');
     }
@@ -620,7 +625,6 @@ export function VisualizePageProvider({ getService, getPageObjects }) {
       await PageObjects.header.waitUntilLoadingHasFinished();
     }
 
-
     async changeHeatmapColorNumbers(value = 6) {
       const input = await testSubjects.find(`heatmapOptionsColorsNumberInput`);
       await input.clear();
@@ -657,6 +661,7 @@ export function VisualizePageProvider({ getService, getPageObjects }) {
       toCell.clearValue();
       toCell.sendKeys(`${to}`);
     }
+
     async clickYAxisOptions(axisId) {
       await testSubjects.click(`toggleYAxisOptions-${axisId}`);
     }
@@ -818,7 +823,7 @@ export function VisualizePageProvider({ getService, getPageObjects }) {
       // 2). find and save the y-axis pixel size (the chart height)
       const rectangle = await remote.findElement(By.css('clipPath rect'));
       const yAxisHeight = await rectangle.getAttribute('height');
-      // 3). get the chart-wrapper elements
+      // 3). get the visWrapper__chart elements
       const chartTypes = await retry.try(
         async () => await remote
           .findElements(By.css(`.chart-wrapper circle[data-label="${dataLabel}"][fill-opacity="1"]`), defaultFindTimeout * 2));
@@ -864,8 +869,8 @@ export function VisualizePageProvider({ getService, getPageObjects }) {
 
       // 2). get the minimum chart Y-Axis marker value and Y position
       const minYAxisChartMarker = await
-        remote.findElement(By.css(
-          'div.y-axis-col.axis-wrapper-left  > div > div > svg:nth-child(2) > g > g:nth-child(1).tick'));
+      remote.findElement(By.css(
+        'div.y-axis-col.axis-wrapper-left  > div > div > svg:nth-child(2) > g > g:nth-child(1).tick'));
       const minYLabel = (await minYAxisChartMarker.getText()).replace(',', '');
       const minYLabelYPosition = (await minYAxisChartMarker.getRect()).y;
       return ((maxYLabel - minYLabel) / (minYLabelYPosition - maxYLabelYPosition));
@@ -924,6 +929,37 @@ export function VisualizePageProvider({ getService, getPageObjects }) {
      * cell values into arrays. Please use this function for newer tests.
      */
     async getTableVisContent({ stripEmptyRows = true } = {}) {
+      const container = await testSubjects.find('tableVis');
+      const allTables = await testSubjects.findAllDescendant('paginated-table-body', container);
+
+      if (allTables.length === 0) {
+        return [];
+      }
+
+      const allData = await Promise.all(allTables.map(async (t) => {
+        let data = await table.getDataFromElement(t);
+        if (stripEmptyRows) {
+          data = data.filter(row => row.length > 0 && row.some(cell => cell.trim().length > 0));
+        }
+        return data;
+      }));
+
+      if (allTables.length === 1) {
+        // If there was only one table we return only the data for that table
+        // This prevents an unnecessary array around that single table, which
+        // is the case we have in most tests.
+        return allData[0];
+      }
+
+      return allData;
+    }
+
+    /**
+     * This function is the newer function to retrieve data from within a table visualization.
+     * It uses a better return format, than the old getTableVisData, by properly splitting
+     * cell values into arrays. Please use this function for newer tests.
+     */
+    async getTableVisContent({ stripEmptyRows = true } = { }) {
       const container = await testSubjects.find('tableVis');
       const allTables = await testSubjects.findAllDescendant('paginated-table-body', container);
 

@@ -362,7 +362,7 @@ export function SecurityPageProvider({ getService, getPageObjects }) {
               .click()
               .then(function () {
                 return addGrantedField(userObj.elasticsearch.indices[0].field_security.grant);
-               });
+              });
           }
         })    //clicking save button
         .then(function () {
