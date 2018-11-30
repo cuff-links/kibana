@@ -36,7 +36,7 @@ import {
 } from './page_objects';
 
 import {
-  RemoteProvider,
+  WebdriverProvider,
   FilterBarProvider,
   QueryBarProvider,
   FindProvider,
@@ -96,7 +96,7 @@ export default async function ({ readConfigFile }) {
       esArchiver: commonConfig.get('services.esArchiver'),
       kibanaServer: commonConfig.get('services.kibanaServer'),
       retry: commonConfig.get('services.retry'),
-      __leadfoot__: RemoteProvider,
+      __webdriver__: WebdriverProvider,
       filterBar: FilterBarProvider,
       queryBar: QueryBarProvider,
       find: FindProvider,

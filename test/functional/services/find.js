@@ -32,10 +32,10 @@
 // where your user is and what they should click next.
 export const WAIT_FOR_EXISTS_TIME = 2500;
 
-export function FindProvider({ getService }) {
+export async function FindProvider({ getService }) {
   const log = getService('log');
   const config = getService('config');
-  const { driver, until, By } = getService('webDriver');
+  const { driver, until, By } = await getService('__webdriver__').init();
   const retry = getService('retry');
 
   const defaultFindTimeout = config.get('timeouts.find');
@@ -99,6 +99,11 @@ export function FindProvider({ getService }) {
       return await this.allByCustom(driver => driver.findElements(By.css(selector)), timeout);
     }
 
+    async allByClassName(className, timeout = defaultFindTimeout) {
+      log.debug('in findAllByClassName: ' + className);
+      return await this.allByCustom(driver => driver.findElements(By.className(className)), timeout);
+    }
+
     async descendantExistsByCssSelector(selector, parentElement, timeout = WAIT_FOR_EXISTS_TIME) {
       log.debug('Find.descendantExistsByCssSelector: ' + selector);
       return await this.exists(async () => await parentElement.findElements(By.css(selector)), timeout);
@@ -117,7 +122,7 @@ export function FindProvider({ getService }) {
       log.debug(`Find.allDescendantDisplayedByCssSelector(${selector})`);
       const allElements = await parentElement.findElements(By.css(selector));
       return await Promise.all(
-        allElements.map(async (element) => {return await element.isDisplayed(); })
+        allElements.map(async (element) => { return await element.isDisplayed(); })
       );
     }
 
@@ -152,7 +157,7 @@ export function FindProvider({ getService }) {
 
     async existsByDisplayedByCssSelector(selector, timeout = WAIT_FOR_EXISTS_TIME) {
       log.debug(`existsByDisplayedByCssSelector ${selector}`);
-      return await this.exists(async leadfoot => await leadfoot.findDisplayedByCssSelector(selector), timeout);
+      return await driver.wait(until.elementIsVisible(By.css(selector)), timeout);
     }
 
     async existsByCssSelector(selector, timeout = WAIT_FOR_EXISTS_TIME) {
@@ -179,20 +184,16 @@ export function FindProvider({ getService }) {
 
     async clickByPartialLinkText(linkText, timeout = defaultFindTimeout) {
       log.debug(`clickByPartialLinkText(${linkText})`);
-      await retry.try(async () => {
-        const element = await this.byPartialLinkText(linkText, timeout);
-        await this.moveMouseTo(element);
-        await element.click();
-      });
+      const element = await this.byPartialLinkText(linkText, timeout);
+      await this.moveMouseTo(element);
+      await element.click();
     }
 
     async clickByLinkText(linkText, timeout = defaultFindTimeout) {
       log.debug(`clickByLinkText(${linkText})`);
-      await retry.try(async () => {
-        const element = await this.byLinkText(linkText, timeout);
-        await this.moveMouseTo(element);
-        await element.click();
-      });
+      const element = await this.byLinkText(linkText, timeout);
+      await this.moveMouseTo(element);
+      await element.click();
     }
 
     async byButtonText(buttonText, element = driver, timeout = defaultFindTimeout) {
@@ -212,34 +213,26 @@ export function FindProvider({ getService }) {
 
     async clickByButtonText(buttonText, element = driver, timeout = defaultFindTimeout) {
       log.debug(`clickByButtonText(${buttonText})`);
-      await retry.try(async () => {
-        const button = await this.byButtonText(buttonText, element, timeout);
-        await button.click();
-      });
+      const button = await this.byButtonText(buttonText, element, timeout);
+      await button.click();
     }
 
     async clickByCssSelector(selector, timeout = defaultFindTimeout) {
       log.debug(`clickByCssSelector(${selector})`);
-      await retry.try(async () => {
-        const element = await this.byCssSelector(selector, timeout);
-        await this.moveMouseTo(element);
-        await element.click();
-      });
+      const element = await this.byCssSelector(selector, timeout);
+      await this.moveMouseTo(element);
+      await element.click();
     }
     async clickByDisplayedLinkText(linkText, timeout = defaultFindTimeout) {
       log.debug(`clickByDisplayedLinkText(${linkText})`);
-      await retry.try(async () => {
-        const element = await this.findDisplayedByLinkText(linkText, timeout);
-        await this.moveMouseTo(element);
-        await element.click();
-      });
+      const element = await this.findDisplayedByLinkText(linkText, timeout);
+      await this.moveMouseTo(element);
+      await element.click();
     }
     async clickDisplayedByCssSelector(selector, timeout = defaultFindTimeout) {
-      await retry.try(async () => {
-        const element = await this.findDisplayedByCssSelector(selector, timeout);
-        await this.moveMouseTo(element);
-        await element.click();
-      });
+      const element = await this.findDisplayedByCssSelector(selector, timeout);
+      await this.moveMouseTo(element);
+      await element.click();
     }
     async waitForDeletedByCssSelector(selector) {
       await driver.wait(() => {
