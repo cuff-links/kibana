@@ -24,6 +24,10 @@ export function IndexManagementPageProvider({ getService }: FtrProviderContext) 
       await testSubjects.click('checkboxToggles-rollupToggle');
     },
 
+    async rollupIndiceToggle() {
+      return await testSubjects.find('checkboxToggles-rollupToggle');
+    },
+
     async getIndexList() {
       const table = await find.byCssSelector('table');
       const $ = await table.parseDomContent();

@@ -13,7 +13,8 @@ export default function ({ getService, getPageObjects }) {
 
   const es = getService('es');
   const esArchiver = getService('esArchiver');
-  const PageObjects = getPageObjects(['rollup', 'common']);
+  const retry = getService('retry');
+  const PageObjects = getPageObjects(['rollup', 'common', 'indexManagement']);
 
   describe('rollup job', function () {
     //Since rollups can only be created once with the same name (even if you delete it),
@@ -44,6 +45,16 @@ export default function ({ getService, getPageObjects }) {
       const jobList = await PageObjects.rollup.getJobList();
       expect(jobList.length).to.be(1);
 
+    });
+
+    it('rollup index toggle should be visible', async () => {
+      await PageObjects.common.navigateToApp('indexManagement');
+
+      await retry.try(async () => {
+        await PageObjects.indexManagement.toggleRollupIndices();
+        const rollupToggleDisplayed = await (await PageObjects.indexManagement.rollupIndiceToggle()).isDisplayed();
+        expect(await rollupToggleDisplayed).to.be(true);
+      });
     });
 
     after(async () => {
